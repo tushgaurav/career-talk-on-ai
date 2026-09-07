@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>AI Engineer Career Talk</title>
+<title>AI Engineer Career Talk | Tushar Gaurav</title>
+<meta name="author" content="Tushar Gaurav">
+<meta name="description" content="AI engineering careers, pathways and work at Orangewood Labs. A presentation by Tushar Gaurav.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -175,6 +177,34 @@
   .agenda-split li{ font-size:22px; font-weight:400; color:var(--text); padding:15px 0; display:flex; gap:18px; align-items:baseline; }
     .agenda-split li .n{ font-size:20px; font-weight:500; color:var(--accent); min-width:34px; }
   .agenda-split li .d{ display:block; font-size:13px; color:var(--muted-2); font-weight:300; margin-top:4px; letter-spacing:0.02em; }
+  .intro-layout{display:flex;flex:1;align-items:center;gap:72px;padding-bottom:42px;min-height:0;}
+  .intro-main{flex:1.1;min-width:0;}
+  .intro-side{flex:1;min-width:0;border-left:1px solid var(--line);padding-left:48px;}
+  .intro-main h1{font-size:62px;line-height:1.1;}
+  .intro-main h2{font-size:50px;font-weight:300;line-height:1.12;}
+  .intro-role{font-size:22px;color:var(--accent);margin-top:20px;line-height:1.5;}
+  .intro-employer{font-size:18px;color:var(--muted);margin-top:8px;line-height:1.5;}
+  .resume-link{display:inline-block;color:var(--accent);font-size:18px;text-decoration:none;margin-top:32px;}
+  .intro-side h3{font-size:20px;font-weight:500;line-height:1.4;}
+  .intro-side p{font-size:17px;line-height:1.55;color:var(--muted);margin-top:8px;}
+  .intro-side article+article{margin-top:26px;}
+  .intro-note{font-size:14px;color:var(--muted);line-height:1.55;margin-top:28px;}
+  .company-menu{display:flex;flex-direction:column;gap:38px;list-style:none;}
+  .company-menu li{font-size:29px;color:var(--accent);line-height:1.4;}
+  .company-menu li span{display:block;font-size:17px;color:var(--muted);margin-top:8px;}
+  .robot-slide{background:#17161C;}
+  .robot-photo{width:440px;height:546px;flex-shrink:0;overflow:hidden;}
+  .robot-photo img{display:block;width:1476px;height:546px;max-width:none;transform:translateX(-980px);}
+  .product-copy{font-size:22px;line-height:1.6;color:var(--muted);margin-top:24px;max-width:600px;}
+  .product-label{font-size:15px;color:var(--accent);letter-spacing:0.12em;text-transform:uppercase;margin-top:28px;}
+  .workflow-example{border:1px solid var(--line);border-radius:16px;padding:32px;background:var(--panel);}
+  .workflow-example .prompt{font-size:26px;line-height:1.45;color:var(--accent);margin-bottom:30px;}
+  .workflow-example ol{padding-left:24px;display:flex;flex-direction:column;gap:18px;}
+  .workflow-example li{font-size:18px;line-height:1.5;color:var(--text);padding-left:8px;}
+  .applications{display:flex;gap:40px;margin-top:48px;}
+  .applications article{flex:1;border-top:1px solid var(--line);padding-top:24px;}
+  .applications h3{font-size:24px;font-weight:400;line-height:1.4;color:var(--accent);}
+  .applications p{font-size:19px;line-height:1.6;color:var(--muted);margin-top:16px;}
 </style>
 </head>
 <body>
@@ -190,6 +220,70 @@
     <div><span>Department</span><b>DEPFE, NCERT, New Delhi</b></div>
   </div>
   <div class="footer"><span>Career Exhibition / Resource Person Talk</span><span class="pg">01</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">About the author</div>
+  <div class="intro-layout">
+    <div class="intro-main">
+      <h1>Tushar<br><span class="accent-txt">Gaurav</span></h1>
+      <p class="intro-role">Full Stack Software Engineer</p>
+      <p class="intro-employer">Software Developer at Orangewood Labs<br>Noida, India</p>
+      <a class="resume-link" href="https://tushgaurav.com/resume">tushgaurav.com/resume</a>
+      <p class="intro-note">B.Tech in Computer Science Engineering<br>Noida Institute of Engineering and Technology, 2020 to 2024</p>
+    </div>
+    <div class="intro-side">
+      <article><h3>RoboGPT</h3><p>Web applications that make robotic arm programming easier for non-technical users.</p></article>
+      <article><h3>Robot-control interfaces</h3><p>Real-time 3D visualisation and connected systems using gRPC and WebSockets.</p></article>
+      <article><h3>From software to deployment</h3><p>Python, TypeScript, React, Next.js and cloud infrastructure for real client projects.</p></article>
+    </div>
+  </div>
+  <div class="footer"><span>Tushar Gaurav / Author</span><span class="pg">02</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Where I work</div>
+  <div class="intro-layout">
+    <div class="intro-main"><h2>What does<br><span class="accent-txt">Orangewood Labs</span><br>do?</h2><p class="product-copy">Robotic arms and software that make automation easier to use.</p></div>
+    <div class="intro-side"><ul class="company-menu">
+      <li>Robotic Arms<span>Hardware, control systems and developer tools</span></li>
+      <li>RoboGPT<span>Natural language interfaces for robot control</span></li>
+      <li>Automation Solutions<span>Robots applied to real manufacturing tasks</span></li>
+    </ul></div>
+  </div>
+  <div class="footer"><span>Orangewood Labs / orangewood.co</span><span class="pg">03</span></div>
+</section>
+
+<section class="slide robot-slide">
+  <div class="kicker">Orangewood Labs / Hardware</div>
+  <div class="intro-layout" style="gap:40px;padding-bottom:24px;">
+    <div class="intro-main"><h2>Robotic Arms</h2><p class="product-copy">OWL 6.5 brings together the robotic arm, control systems and an SDK so developers can program and integrate the robot.</p><p class="product-label">Hardware + controls + software</p></div>
+    <div class="robot-photo"><img src="/orangewood-robot-reference.png" alt="Orangewood OWL robotic arm"></div>
+  </div>
+  <div class="footer"><span>Orangewood Labs / Robotic Arms</span><span class="pg">04</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Orangewood Labs / Software</div>
+  <div class="intro-layout">
+    <div class="intro-main"><h2>RoboGPT</h2><p class="product-copy">Instead of programming every robot movement manually, use natural language or voice commands and AI-assisted workflows to teach or control the robot.</p><p class="intro-note">My work: building the web application and robot-control interfaces.</p></div>
+    <div class="intro-side" style="border:0;padding-left:0;">
+      <div class="workflow-example"><p class="kicker">Example workflow</p><p class="prompt">“Pick up the red apple.”</p><ol><li>Describe the task in plain language.</li><li>Use the interface to review the intended action.</li><li>Run under appropriate safety checks and supervision.</li></ol></div>
+    </div>
+  </div>
+  <div class="footer"><span>Orangewood Labs / RoboGPT</span><span class="pg">05</span></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">Orangewood Labs / Applications</div>
+  <h2>Automation Solutions</h2>
+  <p class="product-copy" style="max-width:960px;">Put robotic arms to work on repetitive tasks by combining hardware, software and application-specific integration.</p>
+  <div class="applications">
+    <article><h3>Coating and painting</h3><p>Powder coating and spray painting applications for repeatable surface finishing.</p></article>
+    <article><h3>Visual inspection</h3><p>Vision-based checks that support quality control and help identify defects.</p></article>
+    <article><h3>Bin picking</h3><p>Picking and moving parts from a bin to support material handling.</p></article>
+  </div>
+  <div class="footer"><span>Orangewood Labs / Applications listed at orangewood.co</span><span class="pg">06</span></div>
 </section>
 
 <!-- 2. AGENDA (split reference style) -->
@@ -473,5 +567,11 @@
   <div class="footer"><span>Department of Educational Psychology and Foundations of Education, NCERT, New Delhi</span><span class="pg">13</span></div>
 </section>
 
+<script>
+  document.querySelectorAll('.slide').forEach((slide, index) => {
+    const pageNumber = slide.querySelector('.pg');
+    if (pageNumber) pageNumber.textContent = String(index + 1).padStart(2, '0');
+  });
+</script>
 </body>
 </html>
