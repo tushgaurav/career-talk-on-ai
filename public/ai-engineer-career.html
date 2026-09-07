@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AI Engineer — Career Talk</title>
+<style>
+  :root{
+    --bg:#0B0F17;
+    --panel:#131B29;
+    --panel-2:#0F1622;
+    --line:#243247;
+    --text:#E8EEF6;
+    --muted:#93A1B5;
+    --accent:#5B9DF9;
+    --accent-soft:#1C2A40;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  @page{ size:A4 landscape; margin:0; }
+  html,body{ background:var(--bg); color:var(--text);
+    font-family:"Helvetica Neue",Arial,"Segoe UI",sans-serif;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  .slide{
+    position:relative;
+    width:297mm; height:210mm;
+    padding:20mm 22mm 16mm;
+    background:
+      radial-gradient(1200px 500px at 85% -10%, rgba(91,157,249,0.10), transparent 60%),
+      var(--bg);
+    page-break-after:always;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .slide:last-child{ page-break-after:auto; }
+
+  .kicker{
+    font-size:10pt; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--accent); font-weight:700; margin-bottom:8mm;
+    display:flex; align-items:center; gap:10px;
+  }
+  .kicker::before{ content:""; width:26px; height:2px; background:var(--accent); display:inline-block; }
+
+  h1{ font-size:40pt; line-height:1.05; font-weight:800; letter-spacing:-0.01em; }
+  h2{ font-size:26pt; line-height:1.12; font-weight:800; letter-spacing:-0.01em; margin-bottom:2mm; }
+  .sub{ color:var(--muted); font-size:12.5pt; line-height:1.5; margin-top:5mm; max-width:210mm; }
+
+  .rule{ height:1px; background:var(--line); margin:6mm 0; }
+
+  .grid{ display:grid; gap:6mm; margin-top:4mm; }
+  .grid-2{ grid-template-columns:1fr 1fr; }
+  .grid-3{ grid-template-columns:1fr 1fr 1fr; }
+
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line); border-radius:10px;
+    padding:6mm 6mm;
+  }
+  .card h3{ font-size:12pt; font-weight:700; color:var(--text); margin-bottom:3mm;
+    display:flex; align-items:center; gap:8px; }
+  .card h3 .dot{ width:8px; height:8px; border-radius:2px; background:var(--accent); flex:none; }
+  .card ul{ list-style:none; }
+  .card li{ font-size:10.5pt; line-height:1.5; color:var(--muted); padding-left:14px; position:relative; margin-bottom:2mm; }
+  .card li::before{ content:""; position:absolute; left:0; top:8px; width:5px; height:5px; border-radius:50%; background:var(--accent); opacity:.8; }
+  .card li b{ color:var(--text); font-weight:600; }
+
+  .rows{ display:flex; flex-direction:column; gap:3.5mm; margin-top:4mm; }
+  .row{
+    display:grid; grid-template-columns:56mm 1fr; align-items:center;
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line); border-radius:10px; padding:4.5mm 6mm;
+  }
+  .row .stage{ font-weight:700; font-size:12pt; color:var(--text); }
+  .row .stage span{ display:block; font-size:9pt; color:var(--accent); font-weight:600; margin-top:1mm; letter-spacing:.04em;}
+  .row .detail{ font-size:10.5pt; color:var(--muted); line-height:1.45; }
+  .pay{ font-size:15pt; font-weight:800; color:var(--accent); text-align:right; }
+  .row.pay-row{ grid-template-columns:56mm 1fr 46mm; }
+
+  .agenda{ display:grid; grid-template-columns:1fr 1fr; gap:4mm 10mm; margin-top:4mm; }
+  .agenda .item{ display:flex; gap:10px; align-items:baseline; padding:3mm 0; border-bottom:1px solid var(--line); }
+  .agenda .num{ font-size:12pt; font-weight:800; color:var(--accent); min-width:26px; }
+  .agenda .ttl{ font-size:12pt; font-weight:600; }
+  .agenda .desc{ font-size:9.5pt; color:var(--muted); display:block; margin-top:1mm; }
+
+  .footer{
+    position:absolute; left:22mm; right:22mm; bottom:9mm;
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:8.5pt; color:var(--muted); letter-spacing:.04em;
+    border-top:1px solid var(--line); padding-top:4mm;
+  }
+  .footer .pg{ color:var(--text); font-weight:700; }
+
+  .spacer{ flex:1; }
+
+  .title-slide{ justify-content:center; }
+  .title-slide .meta{ margin-top:12mm; display:flex; gap:24mm; }
+  .title-slide .meta div span{ display:block; font-size:9pt; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:2mm;}
+  .title-slide .meta div b{ font-size:12pt; font-weight:700; color:var(--text); }
+  .disc{ font-size:8.5pt; color:var(--muted); font-style:italic; margin-top:4mm; }
+</style>
+</head>
+<body>
+
+<!-- 1. TITLE -->
+<section class="slide title-slide">
+  <div class="kicker">NCERT · DEPFE · Career Exhibition</div>
+  <h1>Artificial Intelligence Engineer</h1>
+  <p class="sub" style="font-size:15pt;color:var(--text);max-width:180mm;">A career talk for senior secondary students — the pathways, the work, and the future of building intelligent systems.</p>
+  <div class="meta">
+    <div><span>Audience</span><b>Classes IX – XII</b></div>
+    <div><span>Venue</span><b>KV RK Puram, Sector-2</b></div>
+    <div><span>Department</span><b>DEPFE, NCERT, New Delhi</b></div>
+  </div>
+  <div class="footer"><span>Career Exhibition — Resource Person Talk</span><span class="pg">01</span></div>
+</section>
+
+<!-- 2. AGENDA -->
+<section class="slide">
+  <div class="kicker">What we will cover</div>
+  <h2>Ten questions about a career in AI</h2>
+  <p class="sub">A structured walk-through of everything you need to decide whether this profession is right for you.</p>
+  <div class="agenda">
+    <div class="item"><span class="num">01</span><span class="ttl">Educational Pathway<span class="desc">Subjects, exams and degrees</span></span></div>
+    <div class="item"><span class="num">02</span><span class="ttl">Nature of Work<span class="desc">Day-to-day tasks and tools</span></span></div>
+    <div class="item"><span class="num">03</span><span class="ttl">Working Conditions<span class="desc">Hours, teams and environment</span></span></div>
+    <div class="item"><span class="num">04</span><span class="ttl">Personal Attributes<span class="desc">Skills and dispositions</span></span></div>
+    <div class="item"><span class="num">05</span><span class="ttl">Career Progression<span class="desc">Entry to leadership roles</span></span></div>
+    <div class="item"><span class="num">06</span><span class="ttl">Estimated Salary<span class="desc">Pay at each stage</span></span></div>
+    <div class="item"><span class="num">07</span><span class="ttl">Employment Opportunities<span class="desc">Sectors and geographies</span></span></div>
+    <div class="item"><span class="num">08</span><span class="ttl">Best Colleges in India<span class="desc">Where to study</span></span></div>
+    <div class="item"><span class="num">09</span><span class="ttl">Courses &amp; Internships<span class="desc">Building employability</span></span></div>
+    <div class="item"><span class="num">10</span><span class="ttl">Future Outlook<span class="desc">Long-term relevance</span></span></div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">02</span></div>
+</section>
+
+<!-- 3. EDUCATIONAL PATHWAY -->
+<section class="slide">
+  <div class="kicker">01 · Educational Pathway</div>
+  <h2>How you get into the field</h2>
+  <div class="grid grid-3">
+    <div class="card">
+      <h3><span class="dot"></span>School (Class XI–XII)</h3>
+      <ul>
+        <li><b>Science stream with Mathematics</b> — Maths is essential</li>
+        <li>Physics &amp; Chemistry (PCM) for engineering routes</li>
+        <li>Opt for <b>Computer Science / Informatics</b> if offered</li>
+        <li>Start coding early — Python is a great first language</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Entrance Exams</h3>
+      <ul>
+        <li><b>JEE Main &amp; Advanced</b> — IITs, NITs, IIITs</li>
+        <li><b>BITSAT</b> — BITS Pilani campuses</li>
+        <li><b>CUET</b> — central universities</li>
+        <li>State CETs &amp; university-specific tests</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Degree Routes</h3>
+      <ul>
+        <li><b>B.Tech / B.E.</b> in CSE, AI &amp; ML, or Data Science</li>
+        <li><b>B.Sc</b> in Computer Science, Maths or Statistics</li>
+        <li><b>M.Tech / M.S. / PhD</b> for research &amp; senior roles</li>
+        <li>Online degrees &amp; a strong project portfolio also count</li>
+      </ul>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="card" style="background:var(--accent-soft);border-color:#2C4A6E;">
+    <ul><li style="color:var(--text);"><b>Key point:</b> There is no single fixed route. A solid grounding in mathematics and programming matters more than any one degree.</li></ul>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">03</span></div>
+</section>
+
+<!-- 4. NATURE OF WORK -->
+<section class="slide">
+  <div class="kicker">02 · Nature of Work</div>
+  <h2>What an AI engineer actually does</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="dot"></span>Core Responsibilities</h3>
+      <ul>
+        <li>Design, train and fine-tune <b>machine learning &amp; deep learning</b> models</li>
+        <li>Collect, clean and prepare data; engineer features</li>
+        <li>Deploy models into products and <b>monitor them in production (MLOps)</b></li>
+        <li>Work on NLP, computer vision, recommendation &amp; large language models</li>
+        <li>Write reliable, production-grade code and run experiments</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Tools &amp; Technologies</h3>
+      <ul>
+        <li><b>Languages:</b> Python, SQL, sometimes C++ / Java</li>
+        <li><b>Frameworks:</b> PyTorch, TensorFlow, scikit-learn, Hugging Face</li>
+        <li><b>Cloud &amp; DevOps:</b> AWS, GCP, Azure, Docker, Git</li>
+        <li><b>Data:</b> Pandas, NumPy, Spark, vector databases</li>
+        <li>Collaborates with data scientists, product &amp; software teams</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">04</span></div>
+</section>
+
+<!-- 5. WORKING CONDITIONS -->
+<section class="slide">
+  <div class="kicker">03 · Working Conditions</div>
+  <h2>The work environment</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="dot"></span>Hours &amp; Arrangements</h3>
+      <ul>
+        <li>Typical <b>40–45 hour</b> work weeks</li>
+        <li>Extra hours near product launches or deadlines</li>
+        <li><b>Hybrid and remote</b> work are common in tech</li>
+        <li>On-site work for robotics, hardware or defence projects</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Teams &amp; Culture</h3>
+      <ul>
+        <li>Small <b>cross-functional teams</b> (5–10 people)</li>
+        <li>Agile sprints, code reviews and stand-ups</li>
+        <li>Global collaboration across time zones</li>
+        <li>High screen time and a constant need to keep learning</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">05</span></div>
+</section>
+
+<!-- 6. PERSONAL ATTRIBUTES -->
+<section class="slide">
+  <div class="kicker">04 · Personal Attributes Required</div>
+  <h2>What helps you succeed</h2>
+  <div class="grid grid-3">
+    <div class="card">
+      <h3><span class="dot"></span>Technical Aptitude</h3>
+      <ul>
+        <li>Strong <b>mathematics</b> — linear algebra, probability, statistics</li>
+        <li>Logical reasoning &amp; programming aptitude</li>
+        <li>Comfort with abstraction and problem solving</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Mindset</h3>
+      <ul>
+        <li><b>Curiosity</b> and self-driven learning</li>
+        <li>Patience for experimentation and debugging</li>
+        <li>Attention to detail and rigour with data</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Soft Skills</h3>
+      <ul>
+        <li>Explaining complex ideas <b>simply</b></li>
+        <li>Teamwork and collaboration</li>
+        <li>Ethical judgement and responsibility</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">06</span></div>
+</section>
+
+<!-- 7. CAREER PROGRESSION -->
+<section class="slide">
+  <div class="kicker">05 · Career Progression Path</div>
+  <h2>From entry level to leadership</h2>
+  <div class="rows">
+    <div class="row"><div class="stage">Intern / Trainee<span>Starting out</span></div><div class="detail">Learn on real projects, assist with data and experiments while completing studies.</div></div>
+    <div class="row"><div class="stage">Junior AI / ML Engineer<span>0–2 years</span></div><div class="detail">Build and test models under guidance; strengthen coding and data skills.</div></div>
+    <div class="row"><div class="stage">AI / ML Engineer<span>2–5 years</span></div><div class="detail">Own features end-to-end, deploy models to production, mentor juniors.</div></div>
+    <div class="row"><div class="stage">Senior AI Engineer<span>5–8 years</span></div><div class="detail">Lead complex systems, set technical direction, review architecture.</div></div>
+    <div class="row"><div class="stage">Lead / Principal / ML Architect<span>8–12 years</span></div><div class="detail">Design large-scale AI systems and guide multiple teams.</div></div>
+    <div class="row"><div class="stage">Head of AI / Director / CTO<span>12+ years</span></div><div class="detail">Own AI strategy and organisation-wide impact.</div></div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">07</span></div>
+</section>
+
+<!-- 8. SALARY -->
+<section class="slide">
+  <div class="kicker">06 · Estimated Salary Along the Path</div>
+  <h2>Indicative compensation in India</h2>
+  <div class="rows">
+    <div class="row pay-row"><div class="stage">Entry / Junior<span>0–2 years</span></div><div class="detail">First roles; varies widely by employer and city.</div><div class="pay">₹6–12 LPA</div></div>
+    <div class="row pay-row"><div class="stage">Mid-level<span>2–5 years</span></div><div class="detail">Proven delivery and production experience.</div><div class="pay">₹12–25 LPA</div></div>
+    <div class="row pay-row"><div class="stage">Senior<span>5–8 years</span></div><div class="detail">Technical ownership and mentoring.</div><div class="pay">₹25–45 LPA</div></div>
+    <div class="row pay-row"><div class="stage">Lead / Principal<span>8–12 years</span></div><div class="detail">Architecture and multi-team leadership.</div><div class="pay">₹45–80 LPA</div></div>
+    <div class="row pay-row"><div class="stage">Director / Head of AI<span>12+ years</span></div><div class="detail">Strategy; top product firms pay well above.</div><div class="pay">₹80 LPA+</div></div>
+  </div>
+  <p class="disc">Figures are broad, indicative ranges (annual, in Indian Rupees) and vary significantly with company, location, skills and global roles. Top product companies and overseas positions can pay considerably more.</p>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">08</span></div>
+</section>
+
+<!-- 9. EMPLOYMENT OPPORTUNITIES -->
+<section class="slide">
+  <div class="kicker">07 · Employment Opportunities</div>
+  <h2>Where the demand is</h2>
+  <div class="grid grid-3">
+    <div class="card">
+      <h3><span class="dot"></span>Sectors</h3>
+      <ul>
+        <li>IT &amp; software, e-commerce</li>
+        <li>Fintech, healthcare, automotive</li>
+        <li>Defence, agriculture, telecom</li>
+        <li>Edtech, media &amp; entertainment</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Organisations</h3>
+      <ul>
+        <li>Global: Google, Microsoft, Amazon, NVIDIA, Meta</li>
+        <li>Indian IT: TCS, Infosys, Wipro</li>
+        <li>Startups: Sarvam AI, Krutrim &amp; more</li>
+        <li>Research: ISRO, DRDO, IITs, IISc</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Geographies</h3>
+      <ul>
+        <li>Bengaluru, Hyderabad, Pune</li>
+        <li>Gurugram, NCR, Chennai</li>
+        <li>Global: US, Europe, Singapore, UAE</li>
+        <li>Remote, freelance &amp; consulting</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">09</span></div>
+</section>
+
+<!-- 10. BEST COLLEGES -->
+<section class="slide">
+  <div class="kicker">08 · Best Colleges to Study in India</div>
+  <h2>Recommended institutions</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="dot"></span>Premier Engineering Institutes</h3>
+      <ul>
+        <li><b>IITs</b> — Bombay, Delhi, Madras, Kanpur, Kharagpur, Hyderabad (dedicated AI department)</li>
+        <li><b>IISc Bangalore</b> — leading for AI research</li>
+        <li><b>NITs</b> — Trichy, Surathkal, Warangal</li>
+        <li><b>BITS Pilani</b> — Pilani, Goa, Hyderabad</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Strong CS &amp; AI Programmes</h3>
+      <ul>
+        <li><b>IIITs</b> — Hyderabad, Delhi, Bangalore</li>
+        <li>Delhi University (DU) &amp; DTU / NSUT</li>
+        <li>VIT, Manipal, Ashoka University</li>
+        <li>Reputed state &amp; private universities with AI/DS courses</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">10</span></div>
+</section>
+
+<!-- 11. COURSES & INTERNSHIPS -->
+<section class="slide">
+  <div class="kicker">09 · Best Courses &amp; Internships</div>
+  <h2>Strengthening employability</h2>
+  <div class="grid grid-3">
+    <div class="card">
+      <h3><span class="dot"></span>Certifications</h3>
+      <ul>
+        <li>DeepLearning.AI specialisations (Andrew Ng)</li>
+        <li>Google, AWS &amp; Azure ML certifications</li>
+        <li>NVIDIA Deep Learning Institute</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Courses &amp; Practice</h3>
+      <ul>
+        <li>Coursera / fast.ai machine learning courses</li>
+        <li>Stanford CS231n (vision), CS224n (NLP)</li>
+        <li><b>Kaggle</b> competitions &amp; Kaggle Learn</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>Internships &amp; Portfolio</h3>
+      <ul>
+        <li>Research internships at IITs / IISc</li>
+        <li>Google Summer of Code, industry internships</li>
+        <li>Open-source &amp; <b>GitHub project portfolio</b></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">11</span></div>
+</section>
+
+<!-- 12. FUTURE OUTLOOK -->
+<section class="slide">
+  <div class="kicker">10 · Future Outlook</div>
+  <h2>The long-term relevance of AI</h2>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="dot"></span>Emerging Trends</h3>
+      <ul>
+        <li><b>Generative AI, agents and multimodal models</b> are reshaping every industry</li>
+        <li>Government push through the <b>IndiaAI Mission</b></li>
+        <li>Rapid adoption across healthcare, finance, agriculture and governance</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span>What it means for you</h3>
+      <ul>
+        <li>One of the <b>fastest-growing, highest-demand</b> careers</li>
+        <li>Rising focus on <b>responsible &amp; ethical AI</b> and safety</li>
+        <li>Lifelong learning is essential — the field evolves quickly</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer"><span>NCERT · DEPFE · Artificial Intelligence Engineer</span><span class="pg">12</span></div>
+</section>
+
+<!-- 13. CLOSING -->
+<section class="slide title-slide">
+  <div class="kicker">In summary</div>
+  <h1>Build the future — thoughtfully.</h1>
+  <p class="sub" style="font-size:14pt;color:var(--text);max-width:190mm;">Start with strong mathematics and coding, choose a pathway that fits you, keep building projects, and never stop learning. AI rewards curiosity and persistence.</p>
+  <div class="rule" style="max-width:120mm;"></div>
+  <p class="sub" style="margin-top:2mm;">Thank you · Questions &amp; Discussion</p>
+  <div class="footer"><span>Department of Education Psychology &amp; Foundation of Education — NCERT, New Delhi</span><span class="pg">13</span></div>
+</section>
+
+</body>
+</html>
