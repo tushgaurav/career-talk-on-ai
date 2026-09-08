@@ -66,7 +66,7 @@ def flatten(path):
         thumbnails.append(thumbnail)
         text = page.get_text().strip().splitlines()
         titles.append([1, f"{index + 1:02d}  {text[0] if text else 'Slide'}", index + 1])
-    output.set_metadata({"title": "AI and Full Stack Careers", "author": "Tushar Gaurav", "subject": "AI engineering and full-stack development based on supplied NCERT career pages, with AI myths and presenter guidance", "creator": "Flattened presentation export"})
+    output.set_metadata({"title": "AI and Full Stack Careers", "author": "Tushar Gaurav", "subject": "AI engineering and full-stack development: education, skills, working life and career opportunities", "creator": "Flattened presentation export"})
     output.set_toc(titles)
     destination = ROOT / "public/AI-Engineer-Career-Talk-Smooth.pdf"
     output.save(destination, garbage=4, deflate=True)
@@ -75,11 +75,11 @@ def flatten(path):
     print("After flattening:")
     inspect(destination)
     with pymupdf.open(destination) as result:
-        assert len(result) == 18
+        assert len(result) == len(thumbnails)
         assert all(abs(page.rect.width / page.rect.height - 16 / 9) < 1e-8 for page in result)
         assert all(len(page.get_images()) == 1 for page in result)
-        assert any(link.get("uri") == "https://tushgaurav.com/resume" for link in result[1].get_links())
-    sheet = Image.new("RGB", (480 * 3, 294 * 6), (30, 30, 34))
+        assert any(link.get("uri") == "https://tushgaurav.com/resume" for page in result for link in page.get_links())
+    sheet = Image.new("RGB", (480 * 3, 294 * ((len(thumbnails) + 2) // 3)), (30, 30, 34))
     draw = ImageDraw.Draw(sheet)
     for index, image in enumerate(thumbnails):
         x, y = (index % 3) * 480, (index // 3) * 294
