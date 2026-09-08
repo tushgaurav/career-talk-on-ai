@@ -226,6 +226,15 @@
   .row .detail{font-size:16px;}
   .rows{gap:14px;}
   .row{padding-top:20px;padding-bottom:20px;}
+  .about-sidebar{display:flex;flex-direction:column;gap:32px;}
+  .expertise-list{display:flex;flex-direction:column;gap:16px;list-style:none;}
+  .expertise-list li{font-size:28px;line-height:1.4;color:var(--accent);}
+  .website-qr{display:flex;flex-direction:column;align-items:flex-start;gap:12px;color:var(--muted);text-decoration:none;font-size:14px;line-height:1.5;}
+  .website-qr img{display:block;}
+  .terms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px 40px;margin-top:34px;}
+  .terms-grid>div{border-top:1px solid var(--line);padding-top:18px;}
+  .terms-grid dt{font-size:24px;line-height:1.4;color:var(--accent);margin-bottom:12px;}
+  .terms-grid dd{font-size:18px;line-height:1.5;color:var(--muted);}
 </style>
 </head>
 <body>
@@ -250,32 +259,49 @@
 </section>
 
 <section class="slide">
-  <div class="kicker">About the author</div>
+  <div class="kicker">About Me</div>
   <div class="intro-layout">
     <div class="intro-main">
       <h1>Tushar<br><span class="accent-txt">Gaurav</span></h1>
-      <p class="intro-role">Full Stack Software Engineer</p>
-      <p class="intro-employer">Software Developer at Orangewood Labs<br>Noida, India</p>
-      <a class="resume-link" href="https://tushgaurav.com/resume">tushgaurav.com/resume</a>
+      <p class="intro-role">Software Engineer</p>
+      <p class="intro-employer">Orangewood Labs, Noida, India</p>
+      <a class="resume-link" href="https://tushgaurav.com">tushgaurav.com</a>
       <p class="intro-note">B.Tech in Computer Science Engineering<br>Noida Institute of Engineering and Technology, 2020 to 2024</p>
     </div>
-    <div class="intro-side">
-      <article><h3>RoboGPT</h3><p>Web applications that make robotic arm programming easier for non-technical users.</p></article>
-      <article><h3>Robot-control interfaces</h3><p>Real-time 3D visualisation and connected systems using gRPC and WebSockets.</p></article>
-      <article><h3>From software to deployment</h3><p>Python, TypeScript, React, Next.js and cloud infrastructure for real client projects.</p></article>
-    </div>
+    <aside class="intro-side about-sidebar" aria-label="Areas of work and website">
+      <ul class="expertise-list"><li>Full Stack</li><li>Cloud &amp; DevOps</li><li>AI</li></ul>
+      <a class="website-qr" href="https://tushgaurav.com" aria-label="Visit tushgaurav.com">
+        <img src="/tushgaurav-qr.png" width="164" height="164" alt="QR code for https://tushgaurav.com">
+        <span>Scan to visit my website</span>
+      </a>
+    </aside>
   </div>
-  <div class="footer"><span>Tushar Gaurav / Author</span><span class="pg">02</span></div>
+  <div class="footer"><span>About Me / Tushar Gaurav</span><span class="pg">02</span></div>
+</section>
+
+<section class="slide terminology">
+  <div class="kicker">Before we begin / The basics</div>
+  <h2>A few terms <span class="accent-txt">you’ll hear today</span></h2>
+  <p class="sub">Think of opening your school’s website.</p>
+  <dl class="terms-grid">
+    <div><dt>Client</dt><dd>The browser or app that asks for information—like the browser on your phone.</dd></div>
+    <div><dt>Server</dt><dd>A computer or program that receives requests and sends back a response.</dd></div>
+    <div><dt>Frontend</dt><dd>The part you see and interact with: pages, menus, buttons and forms.</dd></div>
+    <div><dt>Backend</dt><dd>The logic behind the scenes: checking a login or processing a form.</dd></div>
+    <div><dt>Database</dt><dd>An organised store of information, such as student records or school notices.</dd></div>
+    <div><dt>Cloud</dt><dd>Computers and services you use over the internet to run websites and store data.</dd></div>
+  </dl>
+  <div class="footer"><span>Web development / Essential vocabulary</span><span class="pg">04</span></div>
 </section>
 
 <section class="slide fullstack">
   <div class="kicker">Full Stack Developer / Role</div>
   <h2>Full Stack <span class="accent-txt">Developer</span></h2>
-  <p class="sub">Develops both the client and server sides of a web application, providing an end-to-end service.</p>
+  <p class="sub">Builds both the frontend and backend of a website—and connects the pieces into a working application.</p>
   <div class="applications">
-    <article><h3>Client side</h3><p>Build user-facing websites and interfaces that people interact with.</p></article>
-    <article><h3>Server side</h3><p>Develop the application logic and services behind the interface.</p></article>
-    <article><h3>Databases</h3><p>Work on projects involving data storage and connect it to the application.</p></article>
+    <article><h3>Write the code</h3><p>Build pages, buttons and forms.<br>Write backend logic for things like logins and requests.</p></article>
+    <article><h3>Connect the data</h3><p>Connect the application to databases.<br>Save, find and update the information people need.</p></article>
+    <article><h3>Test &amp; launch</h3><p>Test features and debug—find and fix errors.<br>Deploy websites to the cloud so people can use them.</p></article>
   </div>
   <div class="footer"><span>Full Stack Developer / Career Talk</span><span class="pg">03</span></div>
 </section>
@@ -502,11 +528,11 @@
 
 <!-- 13. CLOSING -->
 <section class="slide title-slide">
-  <div class="kicker">Thank you</div>
   <h1>Questions <span class="grad">&amp; discussion</span></h1>
-  <p class="sub" style="font-size:22px;color:var(--text);max-width:1000px;">AI engineering and full-stack development: education, skills and professional life.</p>
-  <p class="sub" style="margin-top:24px;">Tushar Gaurav · Full Stack Software Engineer</p>
-  <div class="footer"><span>Department of Educational Psychology and Foundations of Education, NCERT, New Delhi</span><span class="pg">13</span></div>
+</section>
+
+<section class="slide title-slide">
+  <h1>Thank <span class="grad">You</span></h1>
 </section>
 
 <script>

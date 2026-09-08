@@ -78,7 +78,7 @@ def flatten(path):
         assert len(result) == len(thumbnails)
         assert all(abs(page.rect.width / page.rect.height - 16 / 9) < 1e-8 for page in result)
         assert all(len(page.get_images()) == 1 for page in result)
-        assert any(link.get("uri") == "https://tushgaurav.com/resume" for page in result for link in page.get_links())
+        assert any(link.get("uri", "").rstrip("/") == "https://tushgaurav.com" for page in result for link in page.get_links())
     sheet = Image.new("RGB", (480 * 3, 294 * ((len(thumbnails) + 2) // 3)), (30, 30, 34))
     draw = ImageDraw.Draw(sheet)
     for index, image in enumerate(thumbnails):
