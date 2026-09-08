@@ -66,7 +66,7 @@ def flatten(path):
         thumbnails.append(thumbnail)
         text = page.get_text().strip().splitlines()
         titles.append([1, f"{index + 1:02d}  {text[0] if text else 'Slide'}", index + 1])
-    output.set_metadata({"title": "AI Engineer Career Talk", "author": "Tushar Gaurav", "subject": "AI engineering careers and Orangewood Labs", "creator": "Flattened presentation export"})
+    output.set_metadata({"title": "AI and Full Stack Careers", "author": "Tushar Gaurav", "subject": "AI engineering and full-stack development, with supplied NCERT full-stack career information", "creator": "Flattened presentation export"})
     output.set_toc(titles)
     destination = ROOT / "public/AI-Engineer-Career-Talk-Smooth.pdf"
     output.save(destination, garbage=4, deflate=True)
