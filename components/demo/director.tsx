@@ -37,13 +37,14 @@ type Resolution = '480p' | '768p' | '1080p'
 type Tone = 'info' | 'ok' | 'warn' | 'error' | 'user'
 type FeedItem = { id: number; at: number; tone: Tone; text: string }
 
-type DirectionStatus = 'sent' | 'queued' | 'applied' | 'rejected'
-type LastDirection = {
+type PendingStatus = 'sent' | 'queued' | 'rejected'
+type PendingDirection = {
   version: number
   text: string
-  status: DirectionStatus
+  status: PendingStatus
   reason?: string
 }
+type AppliedDirection = { version: number; text: string }
 
 type DirectorSession = ManagedRealtimeSession<WmaRealtimeSession>
 
@@ -61,14 +62,24 @@ const RESOLUTIONS: { value: Resolution; label: string }[] = [
 
 const SCENE_PRESETS: { label: string; prompt: string }[] = [
   {
+    label: 'Career talk at a school',
+    prompt:
+      'A continuous live-action stream of a young software engineer giving an energetic talk about AI to a packed school auditorium of students in uniforms, a big projector screen behind him, hands going up, teachers watching from the side, warm stage lighting.',
+  },
+  {
     label: 'Robot in Delhi market',
     prompt:
       'A continuous live-action stream following a friendly, curious robot wandering through a busy Delhi street market at golden hour, stopping to look at spices, fabrics and street food.',
   },
   {
-    label: 'Astronaut on alien jungle',
+    label: 'Dinosaur cricket match',
     prompt:
-      'A documentary-style continuous stream following a young astronaut exploring a glowing alien jungle at dusk, bioluminescent plants lighting the path.',
+      'A continuous live sports broadcast of a village cricket match in India where one team is made up of friendly dinosaurs, a crowd cheering from under a banyan tree, dust rising off the pitch.',
+  },
+  {
+    label: 'Chai stall on the Moon',
+    prompt:
+      'A continuous stream of a tiny Indian chai stall set up on the surface of the Moon, an astronaut vendor pouring steaming chai into glasses for other astronauts, the Earth glowing in the black sky.',
   },
   {
     label: 'Cat chef bakery',
@@ -76,23 +87,18 @@ const SCENE_PRESETS: { label: string; prompt: string }[] = [
       'A cosy animated continuous stream inside a small bakery where a cat chef bakes bread and pastries while rain falls softly outside the window.',
   },
   {
-    label: 'Himalayan drone flight',
+    label: 'Whiteboard comes alive',
     prompt:
-      'A slow continuous aerial drone stream gliding over the Himalayas at sunrise, clouds drifting between snow-covered peaks.',
-  },
-  {
-    label: 'Science fair comes alive',
-    prompt:
-      'A continuous live-action stream of a school science fair where the students\u2019 inventions slowly start coming to life, one table at a time.',
+      'A continuous live-action stream of a school classroom where the doodles on the whiteboard slowly peel off and float around the room as glowing 3D shapes while the students watch in awe.',
   },
 ]
 
 const DIRECTION_CHIPS = [
-  'It suddenly starts raining',
+  'A robot walks onto the stage',
+  'It suddenly starts raining indoors',
   'A dog runs into the scene',
-  'Cut to a wide aerial shot',
-  'Night falls and the lights come on',
   'Everyone starts dancing',
+  'Cut to a wide aerial shot',
   'Zoom in on a small detail',
 ]
 
@@ -183,7 +189,10 @@ export function Director() {
 
   // Live
   const [direction, setDirection] = useState('')
-  const [lastDirection, setLastDirection] = useState<LastDirection | null>(null)
+  const [pending, setPending] = useState<PendingDirection | null>(null)
+  const [applied, setApplied] = useState<AppliedDirection | null>(null)
+  // Text of every direction sent this stream, so an ack for an older version can still be shown.
+  const directionsRef = useRef(new Map<number, string>())
   const [feed, setFeed] = useState<FeedItem[]>([])
   const [chunks, setChunks] = useState(0)
   const [bufferDepth, setBufferDepth] = useState<number | null>(null)
@@ -193,7 +202,7 @@ export function Director() {
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [now, setNow] = useState(() => Date.now())
 
-  const feedEndRef = useRef<HTMLDivElement>(null)
+  const feedBoxRef = useRef<HTMLDivElement>(null)
   const directionInputRef = useRef<HTMLInputElement>(null)
 
   const log = useCallback((tone: Tone, text: string) => {
@@ -208,7 +217,9 @@ export function Director() {
   }, [])
 
   useEffect(() => {
-    feedEndRef.current?.scrollIntoView({ block: 'end' })
+    // Scroll only the feed box; scrollIntoView would scroll the whole page too.
+    const box = feedBoxRef.current
+    if (box) box.scrollTop = box.scrollHeight
   }, [feed])
 
   useEffect(() => {
@@ -277,11 +288,11 @@ export function Director() {
       }
       const type = String(message.type ?? '')
 
-      // Only the most recent direction is shown next to the input; older
-      // versions were already superseded by the time their ack arrives.
-      const markDirection = (status: DirectionStatus, reason?: string) => {
-        const version = Number(message.prompt_version)
-        setLastDirection((prev) =>
+      const version = Number(message.prompt_version)
+      // Only the newest pending direction is tracked; acks for superseded
+      // versions are left to the activity feed.
+      const markPending = (status: PendingStatus, reason?: string) => {
+        setPending((prev) =>
           prev && prev.version === version ? { ...prev, status, reason } : prev,
         )
       }
@@ -311,18 +322,24 @@ export function Director() {
           return
         }
         case 'prompt_pending': {
-          markDirection('queued')
+          markPending('queued')
           log('info', `Direction ${message.prompt_version} queued for the next shot.`)
           return
         }
         case 'prompt_applied': {
-          markDirection('applied')
+          const text = directionsRef.current.get(version)
+          if (text) {
+            setApplied((prev) =>
+              prev && prev.version > version ? prev : { version, text },
+            )
+          }
+          setPending((prev) => (prev && prev.version <= version ? null : prev))
           log('ok', `Direction ${message.prompt_version} applied. Watch the next shot.`)
           return
         }
         case 'prompt_rejected': {
           const reason = String(message.reason ?? '')
-          markDirection('rejected', reason)
+          markPending('rejected', reason)
           log(
             'error',
             `Direction ${message.prompt_version} was ${REJECT_TEXT[reason] ?? 'rejected'}.`,
@@ -428,7 +445,9 @@ export function Director() {
     setBuffering(false)
     setStartedAt(null)
     setDirection('')
-    setLastDirection(null)
+    setPending(null)
+    setApplied(null)
+    directionsRef.current.clear()
     promptVersionRef.current = 1
     setPhase('connecting')
     log('user', `Scene: ${prompt}`)
@@ -496,7 +515,9 @@ export function Director() {
     setHasFrames(false)
     setBuffering(false)
     setStartedAt(null)
-    setLastDirection(null)
+    setPending(null)
+    setApplied(null)
+    directionsRef.current.clear()
     setPhase('idle')
   }, [closeSession, detachMedia, setPhase])
 
@@ -514,10 +535,11 @@ export function Director() {
         replan: true,
       })
       log('user', `Direction ${version}: ${prompt}`)
-      setLastDirection({ version, text: prompt, status: 'sent' })
+      directionsRef.current.set(version, prompt)
+      setPending({ version, text: prompt, status: 'sent' })
       setDirection('')
       // Keep the cursor in the box so the next direction can be typed straight away.
-      directionInputRef.current?.focus()
+      directionInputRef.current?.focus({ preventScroll: true })
     },
     [log],
   )
@@ -538,7 +560,7 @@ export function Director() {
   const directionOnTop = running
 
   useEffect(() => {
-    if (canDirect) directionInputRef.current?.focus()
+    if (canDirect) directionInputRef.current?.focus({ preventScroll: true })
   }, [canDirect])
 
   const input =
@@ -567,7 +589,11 @@ export function Director() {
             onSubmit={onDirectionSubmit}
             sendDirection={sendDirection}
             canDirect={canDirect}
-            lastDirection={lastDirection}
+            pending={pending}
+            applied={applied}
+            sceneLabel={
+              SCENE_PRESETS.find((p) => p.prompt === scene)?.label ?? 'Opening scene'
+            }
             onStop={() => void stop()}
           />
         ) : null}
@@ -687,7 +713,7 @@ export function Director() {
             </section>
 
             {/* Start / clear — Stop lives in the direction panel while live */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex min-h-10 flex-wrap items-center gap-3">
               {!running ? (
                 <button
                   type="button"
@@ -735,7 +761,10 @@ export function Director() {
                 {bufferDepth !== null ? ` · ${bufferDepth.toFixed(1)}s buffered` : ''}
               </span>
             </div>
-            <div className="max-h-[50svh] overflow-y-auto rounded-md border border-neutral-800 bg-neutral-900 p-3 text-sm">
+            <div
+              ref={feedBoxRef}
+              className="max-h-[50svh] overflow-y-auto rounded-md border border-neutral-800 bg-neutral-900 p-3 text-sm"
+            >
               {feed.length === 0 ? (
                 <p className="text-neutral-500">Start a stream to see activity here.</p>
               ) : (
@@ -760,7 +789,6 @@ export function Director() {
                   ))}
                 </ol>
               )}
-              <div ref={feedEndRef} />
             </div>
           </section>
         </div>
@@ -778,7 +806,9 @@ function DirectionPanel({
   onSubmit,
   sendDirection,
   canDirect,
-  lastDirection = null,
+  pending = null,
+  applied = null,
+  sceneLabel = 'Opening scene',
   onStop,
 }: {
   prominent?: boolean
@@ -789,7 +819,9 @@ function DirectionPanel({
   onSubmit: (event: FormEvent) => void
   sendDirection: (text: string) => void
   canDirect: boolean
-  lastDirection?: LastDirection | null
+  pending?: PendingDirection | null
+  applied?: AppliedDirection | null
+  sceneLabel?: string
   onStop?: () => void
 }) {
   return (
@@ -824,7 +856,11 @@ function DirectionPanel({
           onChange={(e) => setDirection(e.target.value)}
           disabled={!canDirect}
           autoComplete="off"
-          placeholder="What should happen next?"
+          placeholder={
+            canDirect || !prominent
+              ? 'What should happen next?'
+              : 'Waiting for the first frames…'
+          }
           className={cn(
             inputClass,
             'flex-1',
@@ -842,11 +878,6 @@ function DirectionPanel({
           Send
         </button>
       </form>
-      <DirectionStatusLine
-        canDirect={canDirect}
-        lastDirection={lastDirection}
-        prominent={prominent}
-      />
       <div className="mt-2 flex flex-wrap gap-2">
         {DIRECTION_CHIPS.map((chip) => (
           <button
@@ -863,69 +894,94 @@ function DirectionPanel({
           </button>
         ))}
       </div>
+      {prominent ? (
+        <ShotQueue
+          canDirect={canDirect}
+          pending={pending}
+          applied={applied}
+          sceneLabel={sceneLabel}
+        />
+      ) : null}
     </section>
   )
 }
 
-const STATUS_TEXT: Record<DirectionStatus, string> = {
-  sent: 'Sending…',
-  queued: 'Queued for the next shot',
-  applied: 'Applied — watch the next shot',
-  rejected: 'Rejected',
-}
-
-/** One fixed-height line under the input: a hint before anything is sent, then the latest direction and its status. */
-function DirectionStatusLine({
+/**
+ * What the audience needs to read: the direction that is about to take effect
+ * (Up next) and the one currently on screen (Now showing). Both cells keep a
+ * fixed two-line height so the panel never shifts as directions come and go.
+ */
+function ShotQueue({
   canDirect,
-  lastDirection,
-  prominent,
+  pending,
+  applied,
+  sceneLabel,
 }: {
   canDirect: boolean
-  lastDirection: LastDirection | null
-  prominent: boolean
+  pending: PendingDirection | null
+  applied: AppliedDirection | null
+  sceneLabel: string
 }) {
-  const size = prominent ? 'text-sm' : 'text-xs'
+  const rejected = pending?.status === 'rejected'
+  const rejectReason =
+    rejected && pending?.reason ? REJECT_TEXT[pending.reason] : undefined
 
-  if (!lastDirection) {
-    return (
-      <p className={cn('mt-2 truncate text-neutral-500', size)}>
-        {canDirect
-          ? 'Type what should happen next — it shows up in the next shot.'
-          : 'Available once the stream is live.'}
-      </p>
-    )
-  }
-
-  const { status, text, reason } = lastDirection
-  const pending = status === 'sent' || status === 'queued'
-  const statusText =
-    status === 'rejected' && reason && REJECT_TEXT[reason]
-      ? `Rejected — ${REJECT_TEXT[reason]}`
-      : STATUS_TEXT[status]
+  let nextStatus: string
+  if (!pending) nextStatus = canDirect ? 'Waiting for a direction' : 'Stream is starting'
+  else if (pending.status === 'sent') nextStatus = 'Sending…'
+  else if (pending.status === 'queued') nextStatus = 'Queued · takes effect on the next shot'
+  else nextStatus = rejectReason ? `Not applied — ${rejectReason}` : 'Not applied'
 
   return (
-    <p
-      className={cn('mt-2 flex min-w-0 items-center gap-2', size)}
+    <div
+      className="mt-4 grid gap-4 border-t border-neutral-800 pt-4 sm:grid-cols-2"
       aria-live="polite"
     >
-      <span
-        className={cn(
-          'size-1.5 shrink-0 rounded-full',
-          pending && 'animate-pulse bg-neutral-400',
-          status === 'applied' && 'bg-neutral-100',
-          status === 'rejected' && 'bg-red-500',
-        )}
-      />
-      <span
-        className={cn(
-          'shrink-0',
-          status === 'rejected' ? 'text-red-400' : 'text-neutral-300',
-        )}
-      >
-        {statusText}
-      </span>
-      <span className="truncate text-neutral-500">“{text}”</span>
-    </p>
+      <div className="min-w-0">
+        <div className="mb-1 flex items-center gap-2 text-xs font-medium tracking-wide text-neutral-500 uppercase">
+          <span
+            className={cn(
+              'size-1.5 rounded-full',
+              !pending && 'bg-neutral-700',
+              pending && !rejected && 'animate-pulse bg-amber-400',
+              rejected && 'bg-red-500',
+            )}
+          />
+          Up next
+        </div>
+        <p
+          className={cn(
+            'line-clamp-2 min-h-[2lh] text-lg leading-snug sm:text-xl',
+            pending && !rejected && 'text-neutral-50',
+            rejected && 'text-neutral-400 line-through decoration-red-500/70',
+            !pending && 'text-neutral-600',
+          )}
+        >
+          {pending ? pending.text : 'Type a direction above'}
+        </p>
+        <p
+          className={cn(
+            'mt-1 truncate text-sm',
+            rejected ? 'text-red-400' : 'text-neutral-500',
+          )}
+        >
+          {nextStatus}
+        </p>
+      </div>
+
+      <div className="min-w-0 sm:border-l sm:border-neutral-800 sm:pl-4">
+        <div className="mb-1 flex items-center gap-2 text-xs font-medium tracking-wide text-neutral-500 uppercase">
+          <span className="size-1.5 rounded-full bg-neutral-100" />
+          Now showing
+        </div>
+        <p className="line-clamp-2 min-h-[2lh] text-lg leading-snug text-neutral-300 sm:text-xl">
+          {applied ? applied.text : sceneLabel}
+        </p>
+        <p className="mt-1 truncate text-sm text-neutral-500">
+          {applied ? 'Live on screen' : 'Opening scene'}
+        </p>
+      </div>
+    </div>
   )
 }
 
