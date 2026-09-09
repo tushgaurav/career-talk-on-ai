@@ -8,7 +8,7 @@ import {
   useState,
   type CSSProperties,
   type FormEvent,
-  type ReactNode,
+  type RefObject,
 } from 'react'
 import { createFalClient } from '@fal-ai/client'
 import {
@@ -36,6 +36,14 @@ type Resolution = '480p' | '768p' | '1080p'
 
 type Tone = 'info' | 'ok' | 'warn' | 'error' | 'user'
 type FeedItem = { id: number; at: number; tone: Tone; text: string }
+
+type DirectionStatus = 'sent' | 'queued' | 'applied' | 'rejected'
+type LastDirection = {
+  version: number
+  text: string
+  status: DirectionStatus
+  reason?: string
+}
 
 type DirectorSession = ManagedRealtimeSession<WmaRealtimeSession>
 
@@ -175,6 +183,7 @@ export function Director() {
 
   // Live
   const [direction, setDirection] = useState('')
+  const [lastDirection, setLastDirection] = useState<LastDirection | null>(null)
   const [feed, setFeed] = useState<FeedItem[]>([])
   const [chunks, setChunks] = useState(0)
   const [bufferDepth, setBufferDepth] = useState<number | null>(null)
@@ -185,6 +194,7 @@ export function Director() {
   const [now, setNow] = useState(() => Date.now())
 
   const feedEndRef = useRef<HTMLDivElement>(null)
+  const directionInputRef = useRef<HTMLInputElement>(null)
 
   const log = useCallback((tone: Tone, text: string) => {
     feedIdRef.current += 1
@@ -267,6 +277,15 @@ export function Director() {
       }
       const type = String(message.type ?? '')
 
+      // Only the most recent direction is shown next to the input; older
+      // versions were already superseded by the time their ack arrives.
+      const markDirection = (status: DirectionStatus, reason?: string) => {
+        const version = Number(message.prompt_version)
+        setLastDirection((prev) =>
+          prev && prev.version === version ? { ...prev, status, reason } : prev,
+        )
+      }
+
       switch (type) {
         case 'configured': {
           setPhase('streaming')
@@ -292,15 +311,18 @@ export function Director() {
           return
         }
         case 'prompt_pending': {
+          markDirection('queued')
           log('info', `Direction ${message.prompt_version} queued for the next shot.`)
           return
         }
         case 'prompt_applied': {
+          markDirection('applied')
           log('ok', `Direction ${message.prompt_version} applied. Watch the next shot.`)
           return
         }
         case 'prompt_rejected': {
           const reason = String(message.reason ?? '')
+          markDirection('rejected', reason)
           log(
             'error',
             `Direction ${message.prompt_version} was ${REJECT_TEXT[reason] ?? 'rejected'}.`,
@@ -406,6 +428,7 @@ export function Director() {
     setBuffering(false)
     setStartedAt(null)
     setDirection('')
+    setLastDirection(null)
     promptVersionRef.current = 1
     setPhase('connecting')
     log('user', `Scene: ${prompt}`)
@@ -473,6 +496,7 @@ export function Director() {
     setHasFrames(false)
     setBuffering(false)
     setStartedAt(null)
+    setLastDirection(null)
     setPhase('idle')
   }, [closeSession, detachMedia, setPhase])
 
@@ -490,7 +514,10 @@ export function Director() {
         replan: true,
       })
       log('user', `Direction ${version}: ${prompt}`)
+      setLastDirection({ version, text: prompt, status: 'sent' })
       setDirection('')
+      // Keep the cursor in the box so the next direction can be typed straight away.
+      directionInputRef.current?.focus()
     },
     [log],
   )
@@ -505,6 +532,14 @@ export function Director() {
   const setupLocked = running
   const canDirect = phase === 'streaming' && hasFrames
   const elapsed = startedAt ? now - startedAt : 0
+
+  // Once the stream is running the direction box moves above the video so it is
+  // easy to see on a projector while typing.
+  const directionOnTop = running
+
+  useEffect(() => {
+    if (canDirect) directionInputRef.current?.focus()
+  }, [canDirect])
 
   const input =
     'w-full rounded-md border border-neutral-800 bg-neutral-900 px-3 text-sm text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-neutral-500 disabled:cursor-not-allowed disabled:opacity-50'
@@ -521,6 +556,21 @@ export function Director() {
           </div>
           <Status phase={phase} elapsed={elapsed} />
         </header>
+
+        {directionOnTop ? (
+          <DirectionPanel
+            prominent
+            inputRef={directionInputRef}
+            inputClass={input}
+            direction={direction}
+            setDirection={setDirection}
+            onSubmit={onDirectionSubmit}
+            sendDirection={sendDirection}
+            canDirect={canDirect}
+            lastDirection={lastDirection}
+            onStop={() => void stop()}
+          />
+        ) : null}
 
         {/* Video */}
         <div
@@ -636,17 +686,9 @@ export function Director() {
               </label>
             </section>
 
-            {/* Start / stop */}
+            {/* Start / clear — Stop lives in the direction panel while live */}
             <div className="flex flex-wrap items-center gap-3">
-              {running ? (
-                <button
-                  type="button"
-                  onClick={() => void stop()}
-                  className="h-10 rounded-md bg-red-600 px-4 text-sm font-medium text-white hover:bg-red-500"
-                >
-                  Stop stream
-                </button>
-              ) : (
+              {!running ? (
                 <button
                   type="button"
                   onClick={() => void start()}
@@ -655,6 +697,10 @@ export function Director() {
                 >
                   {phase === 'idle' ? 'Start stream' : 'Start again'}
                 </button>
+              ) : (
+                <p className="text-sm text-neutral-500">
+                  Settings are locked while the stream is live.
+                </p>
               )}
               {!running && hasFrames ? (
                 <button
@@ -667,49 +713,17 @@ export function Director() {
               ) : null}
             </div>
 
-            {/* Direction */}
-            <section>
-              <div className="mb-2 flex items-baseline justify-between">
-                <label htmlFor="direction" className="text-sm font-medium">
-                  Direct the scene
-                </label>
-                <span className="text-xs text-neutral-500">
-                  {canDirect
-                    ? 'Changes show up in the next shot'
-                    : 'Available once the stream is live'}
-                </span>
-              </div>
-              <form onSubmit={onDirectionSubmit} className="flex gap-2">
-                <input
-                  id="direction"
-                  value={direction}
-                  onChange={(e) => setDirection(e.target.value)}
-                  disabled={!canDirect}
-                  placeholder="What should happen next?"
-                  className={cn(input, 'h-10 flex-1')}
-                />
-                <button
-                  type="submit"
-                  disabled={!canDirect || !direction.trim()}
-                  className="h-10 shrink-0 rounded-md bg-white px-4 text-sm font-medium text-black hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Send
-                </button>
-              </form>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {DIRECTION_CHIPS.map((chip) => (
-                  <button
-                    key={chip}
-                    type="button"
-                    disabled={!canDirect}
-                    onClick={() => sendDirection(chip)}
-                    className="rounded-md border border-neutral-800 px-2.5 py-1 text-xs text-neutral-400 transition-colors hover:border-neutral-600 hover:text-neutral-200 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {chip}
-                  </button>
-                ))}
-              </div>
-            </section>
+            {!directionOnTop ? (
+              <DirectionPanel
+                inputRef={directionInputRef}
+                inputClass={input}
+                direction={direction}
+                setDirection={setDirection}
+                onSubmit={onDirectionSubmit}
+                sendDirection={sendDirection}
+                canDirect={canDirect}
+              />
+            ) : null}
           </div>
 
           {/* Activity */}
@@ -752,6 +766,166 @@ export function Director() {
         </div>
       </div>
     </main>
+  )
+}
+
+function DirectionPanel({
+  prominent = false,
+  inputRef,
+  inputClass,
+  direction,
+  setDirection,
+  onSubmit,
+  sendDirection,
+  canDirect,
+  lastDirection = null,
+  onStop,
+}: {
+  prominent?: boolean
+  inputRef: RefObject<HTMLInputElement | null>
+  inputClass: string
+  direction: string
+  setDirection: (value: string) => void
+  onSubmit: (event: FormEvent) => void
+  sendDirection: (text: string) => void
+  canDirect: boolean
+  lastDirection?: LastDirection | null
+  onStop?: () => void
+}) {
+  return (
+    <section
+      className={cn(
+        prominent &&
+          'mb-5 rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 sm:p-5',
+      )}
+    >
+      <div className="mb-2 flex items-center justify-between gap-4">
+        <label
+          htmlFor="direction"
+          className={cn('font-medium', prominent ? 'text-base' : 'text-sm')}
+        >
+          Direct the scene
+        </label>
+        {onStop ? (
+          <button
+            type="button"
+            onClick={onStop}
+            className="h-8 rounded-md border border-neutral-800 px-3 text-xs text-neutral-400 transition-colors hover:border-red-500/60 hover:text-red-400"
+          >
+            Stop stream
+          </button>
+        ) : null}
+      </div>
+      <form onSubmit={onSubmit} className="flex gap-2">
+        <input
+          ref={inputRef}
+          id="direction"
+          value={direction}
+          onChange={(e) => setDirection(e.target.value)}
+          disabled={!canDirect}
+          autoComplete="off"
+          placeholder="What should happen next?"
+          className={cn(
+            inputClass,
+            'flex-1',
+            prominent ? 'h-14 px-4 text-xl sm:text-2xl' : 'h-10',
+          )}
+        />
+        <button
+          type="submit"
+          disabled={!canDirect || !direction.trim()}
+          className={cn(
+            'shrink-0 rounded-md bg-white font-medium text-black hover:bg-neutral-200 disabled:cursor-not-allowed disabled:opacity-50',
+            prominent ? 'h-14 px-6 text-base' : 'h-10 px-4 text-sm',
+          )}
+        >
+          Send
+        </button>
+      </form>
+      <DirectionStatusLine
+        canDirect={canDirect}
+        lastDirection={lastDirection}
+        prominent={prominent}
+      />
+      <div className="mt-2 flex flex-wrap gap-2">
+        {DIRECTION_CHIPS.map((chip) => (
+          <button
+            key={chip}
+            type="button"
+            disabled={!canDirect}
+            onClick={() => sendDirection(chip)}
+            className={cn(
+              'rounded-md border border-neutral-800 text-neutral-400 transition-colors hover:border-neutral-600 hover:text-neutral-200 disabled:cursor-not-allowed disabled:opacity-50',
+              prominent ? 'px-3 py-1.5 text-sm' : 'px-2.5 py-1 text-xs',
+            )}
+          >
+            {chip}
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+const STATUS_TEXT: Record<DirectionStatus, string> = {
+  sent: 'Sending…',
+  queued: 'Queued for the next shot',
+  applied: 'Applied — watch the next shot',
+  rejected: 'Rejected',
+}
+
+/** One fixed-height line under the input: a hint before anything is sent, then the latest direction and its status. */
+function DirectionStatusLine({
+  canDirect,
+  lastDirection,
+  prominent,
+}: {
+  canDirect: boolean
+  lastDirection: LastDirection | null
+  prominent: boolean
+}) {
+  const size = prominent ? 'text-sm' : 'text-xs'
+
+  if (!lastDirection) {
+    return (
+      <p className={cn('mt-2 truncate text-neutral-500', size)}>
+        {canDirect
+          ? 'Type what should happen next — it shows up in the next shot.'
+          : 'Available once the stream is live.'}
+      </p>
+    )
+  }
+
+  const { status, text, reason } = lastDirection
+  const pending = status === 'sent' || status === 'queued'
+  const statusText =
+    status === 'rejected' && reason && REJECT_TEXT[reason]
+      ? `Rejected — ${REJECT_TEXT[reason]}`
+      : STATUS_TEXT[status]
+
+  return (
+    <p
+      className={cn('mt-2 flex min-w-0 items-center gap-2', size)}
+      aria-live="polite"
+    >
+      <span
+        className={cn(
+          'size-1.5 shrink-0 rounded-full',
+          pending && 'animate-pulse bg-neutral-400',
+          status === 'applied' && 'bg-neutral-100',
+          status === 'rejected' && 'bg-red-500',
+        )}
+      />
+      <span
+        className={cn(
+          'shrink-0',
+          status === 'rejected' ? 'text-red-400' : 'text-neutral-300',
+        )}
+      >
+        {statusText}
+      </span>
+      <span className="truncate text-neutral-500">“{text}”</span>
+    </p>
   )
 }
 
